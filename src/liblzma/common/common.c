@@ -207,6 +207,7 @@ lzma_code(lzma_stream *strm, lzma_action action)
 			|| strm->reserved_ptr2 != NULL
 			|| strm->reserved_ptr3 != NULL
 			|| strm->reserved_ptr4 != NULL
+			|| strm->reserved_int1 != 0
 			|| strm->reserved_int2 != 0
 			|| strm->reserved_int3 != 0
 			|| strm->reserved_int4 != 0
@@ -315,17 +316,6 @@ lzma_code(lzma_stream *strm, lzma_action action)
 	case LZMA_TIMED_OUT:
 		strm->internal->allow_buf_error = false;
 		ret = LZMA_OK;
-		break;
-
-	case LZMA_SEEK_NEEDED:
-		strm->internal->allow_buf_error = false;
-
-		// If LZMA_FINISH was used, reset it back to the
-		// LZMA_RUN-based state so that new input can be supplied
-		// by the application.
-		if (strm->internal->sequence == ISEQ_FINISH)
-			strm->internal->sequence = ISEQ_RUN;
-
 		break;
 
 	case LZMA_STREAM_END:
@@ -445,10 +435,8 @@ lzma_memlimit_set(lzma_stream *strm, uint64_t new_memlimit)
 			|| strm->internal->next.memconfig == NULL)
 		return LZMA_PROG_ERROR;
 
-	// Zero is a special value that cannot be used as an actual limit.
-	// If 0 was specified, use 1 instead.
-	if (new_memlimit == 0)
-		new_memlimit = 1;
+	if (new_memlimit != 0 && new_memlimit < LZMA_MEMUSAGE_BASE)
+		return LZMA_MEMLIMIT_ERROR;
 
 	return strm->internal->next.memconfig(strm->internal->next.coder,
 			&memusage, &old_memlimit, new_memlimit);

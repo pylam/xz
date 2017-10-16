@@ -77,8 +77,7 @@ manfiles = \
 # Convert the man pages to PDF and plain text (ASCII only) formats.
 dist-hook:
 	if test -d "$(srcdir)/.git" && type git > /dev/null 2>&1; then \
-		( cd "$(srcdir)" && git log --date=iso --stat \
-			b667a3ef6338a2c1db7b7706b1f6c99ea392221c^..HEAD ) \
+		( cd "$(srcdir)" && git log --date=iso --stat ) \
 			> "$(distdir)/ChangeLog"; \
 	fi
 	if type groff > /dev/null 2>&1 && type ps2pdf > /dev/null 2>&1; then \

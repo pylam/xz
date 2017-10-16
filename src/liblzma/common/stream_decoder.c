@@ -422,6 +422,9 @@ lzma_stream_decoder_init(
 {
 	lzma_next_coder_init(&lzma_stream_decoder_init, next, allocator);
 
+	if (memlimit == 0)
+		return LZMA_PROG_ERROR;
+
 	if (flags & ~LZMA_SUPPORTED_FLAGS)
 		return LZMA_OPTIONS_ERROR;
 
@@ -441,7 +444,7 @@ lzma_stream_decoder_init(
 		coder->index_hash = NULL;
 	}
 
-	coder->memlimit = my_max(1, memlimit);
+	coder->memlimit = memlimit;
 	coder->memusage = LZMA_MEMUSAGE_BASE;
 	coder->tell_no_check = (flags & LZMA_TELL_NO_CHECK) != 0;
 	coder->tell_unsupported_check
